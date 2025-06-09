@@ -7,7 +7,12 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "coverage": "jest --coverage"
+  },
+  "bin": {
+    "api-client-cli": "./dist/cli.js"
   },
   "repository": {
     "type": "git",
@@ -16,9 +21,13 @@
   "author": "Kris Nielsen",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.9.0"
+    "axios": "^1.9.0",
+    "inquirer": "^12.6.3"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
     "typescript": "^5.8.3"
   }
 }
