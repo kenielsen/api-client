@@ -15,20 +15,32 @@ export interface ApiRequestConfig {
   url: string;
   method: HttpMethod;
   headers?: Record<string, string>;
-  pathParams?: string[];
-  queryParams?: string[];
+  pathParams?: ParamDefinition[];
+  queryParams?: ParamDefinition[];
   transformRequest?: TransformRequestFn[];
   transformResponse?: TransformResponseFn;
 }
 
+export interface ParamDefinition {
+  name: string;
+  required: boolean;
+}
+
 export interface ApiCall {
   endpointKey: string;
-  pathParams?: Record<string, string>;
-  queryParams?: Record<string, string>;
+  pathParams?: Record<string, unknown>;
+  queryParams?: Record<string, unknown>;
   body?: unknown;
 }
 
 export interface ApiRequest {
+  url: string;
+  method: HttpMethod;
+  headers?: Record<string, string>;
+  queryString?: string;
+  data?: unknown;
+  transformRequest?: TransformRequestFn[];
+  transformResponse?: TransformResponseFn;
 
 }
 
