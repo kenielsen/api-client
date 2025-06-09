@@ -1,0 +1,24 @@
+{
+  "name": "@kenielsen/api-client",
+  "version": "0.1.0",
+  "description": "Declarative HTTP client fabric for React and internal apps.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenielsen/api-client.git"
+  },
+  "author": "Kris Nielsen",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

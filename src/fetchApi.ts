@@ -1,6 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { ApiResponse, EndpointConfigs } from '../api.types';
-import { AxiosCacheInstance } from 'axios-cache-interceptor';
+import { ApiResponse, ApiRequestConfigs, TransportClient, ApiRequest, ApiCall } from './types';
 
 function replacePathParams(path: string, params: Record<string, string>) {
   Object.keys(params).forEach(key => {
@@ -34,15 +33,20 @@ function replacePathParams(path: string, params: Record<string, string>) {
  * @throws Error if endpoint.instanceKey does not have an associated apiInstance
  */
 const fetchApi = async <T>(
+  requestInput: ApiCall,
   endpointKey: string,
   params: Record<string, string>,
   body: unknown,
-  apiInstances: Record<string, AxiosCacheInstance>,
-  endpoints: EndpointConfigs
+  apiInstances: Record<string, TransportClient>,
+  endpoints: ApiRequestConfigs
 ): Promise<ApiResponse<T>> => {
   if(!apiInstances || !endpoints) throw new Error(`Neither apiInstances nor endpoints can be undefined.`);
 
-  const config = { ...endpoints[endpointKey] };
+  const config = endpoints[endpointKey];
+  const request: ApiRequest = {
+    endpointKey
+  }
+  // const config = {endpointKey};
   const instanceKey = config.instanceKey;
   const pathParams = (config.url?.match(/<([^>]+)>/g) || []).map(param => param.slice(1, -1));
 
@@ -52,20 +56,18 @@ const fetchApi = async <T>(
 
   if (!api) throw new Error(`No API instance found for ${instanceKey}`);
 
-  config.url = replacePathParams(config.url!, params);
+  request.url = replacePathParams(config.url!, params);
 
   if (!Object.keys(params).every(param => pathParams.includes(param))) {
-    config.params = Object.fromEntries(Object.entries(params).filter(([key]) => !pathParams.includes(key)));
+    request.params = Object.fromEntries(Object.entries(params).filter(([key]) => !pathParams.includes(key)));
   }
 
   if (body && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
-    config.data = body;
+    request.data = body;
   }
 
   try {
-    const response = await api.request({
-      ...(config as Omit<AxiosRequestConfig, 'instanceKey'>)
-    });
+    const response = await api.request<T>(request);
 
     return { data: response.data };
 

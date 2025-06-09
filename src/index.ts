@@ -1,4 +1,4 @@
-export { type EndpointConfigs, type BaseConfigs, type ApiErrorHandler } from './api.types';
+export { type EndpointConfigs, type BaseConfigs, type ApiErrorHandler } from './types';
 export { ApiProvider } from './contexts/ApiProvider';
 export { default as useApi } from './hooks/useApi';
 export { default as useCallApi } from './hooks/useCallApi';
