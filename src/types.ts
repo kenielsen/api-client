@@ -1,6 +1,18 @@
-type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+
+export type AdapterType = "axios" | "fetch";
+
+export interface AdapterOptions {
+  adapter: AdapterType;
+  baseConfigs: ApiBaseConfigs;
+  customBuilders?: Record<
+    string,
+    (baseConfigs: ApiBaseConfigs) => TransportClients
+  >;
+}
 
 export interface TransportClient {
+  instance?: unknown;
   request<T>(request: ApiRequest): Promise<ApiResponse<T>>;
 }
 

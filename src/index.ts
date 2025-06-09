@@ -1,8 +1,17 @@
-export { type EndpointConfigs, type BaseConfigs, type ApiErrorHandler } from './types';
-export { ApiProvider } from './contexts/ApiProvider';
-export { default as useApi } from './hooks/useApi';
-export { default as useCallApi } from './hooks/useCallApi';
+export { fetchApi } from "./fetchApi";
 
-export function asJSON(data: unknown) {
-  return (typeof data) === 'string' && data.length > 0 ? JSON.parse(data) : data;
-}
+export { buildApiClients } from "./buildApiClients";
+
+export type {
+  ApiBaseConfigs,
+  ApiRequestConfigs,
+  TransportClient, // for adding custom logic around a given instance
+  TransportClients,
+  ApiCall,
+  TransformRequestFn,
+  TransformResponseFn,
+  ParamDefinition,
+  AdapterOptions,
+  AdapterType,
+  HttpMethod,
+} from "./types";

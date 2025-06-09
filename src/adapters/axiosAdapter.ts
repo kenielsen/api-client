@@ -2,6 +2,7 @@ import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 import type { ApiBaseConfigs, ApiRequest, ApiResponse, TransportClient, TransportClients } from '../types';
 
 const buildAxiosClient = (instance: AxiosInstance): TransportClient => ({
+  instance,
   request: async<T>(request: ApiRequest): Promise<ApiResponse<T>> => {
     try {
       const response = await instance.request<T>({
@@ -19,7 +20,7 @@ const buildAxiosClient = (instance: AxiosInstance): TransportClient => ({
   }
 });
 
-export const buildApiClients = (baseConfigs: ApiBaseConfigs): TransportClients => {
+export const buildAxiosClients = (baseConfigs: ApiBaseConfigs): TransportClients => {
   const instances: TransportClients = {};
 
   Object.entries(baseConfigs).forEach(([key, config]) => {

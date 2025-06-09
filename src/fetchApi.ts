@@ -13,7 +13,7 @@ import { ApiResponse, ApiRequestConfigs, TransportClient, ApiRequest, ApiCall } 
  * @throws Error if configured endpoints do not contain endpointKey
  * @throws Error if endpoint.instanceKey does not have an associated apiInstance
  */
-const fetchApi = async <T>(
+export const fetchApi = async <T>(
   apiCall: ApiCall,
   params: Record<string, string>,
   body: unknown,
@@ -37,6 +37,7 @@ const fetchApi = async <T>(
   if (!api) throw new Error(`No API instance found for ${instanceKey}`);
 
   if (config.pathParams) {
+    // check if 
 
   }
 
@@ -58,5 +59,3 @@ const fetchApi = async <T>(
     return { error };
   }
 }
-
-export default fetchApi;
