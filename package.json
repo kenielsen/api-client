@@ -14,10 +14,41 @@
   "bin": {
     "api-client-cli": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kenielsen/api-client.git"
   },
+  "homepage": "https://github.com/kenielsen/api-client#readme",
+  "bugs": {
+    "url": "https://github.com/kenielsen/api-client/issues"
+  },
+  "keywords": [
+    "api-client",
+    "http-client",
+    "typescript",
+    "sdk",
+    "fetch",
+    "axios",
+    "declarative",
+    "transport-agnostic",
+    "rest",
+    "openapi",
+    "json",
+    "yaml",
+    "request",
+    "typed-api",
+    "multi-tenant",
+    "param-validation",
+    "api-definition",
+    "extensible",
+    "developer-tools",
+    "frontend"
+  ],
   "author": "Kris Nielsen",
   "license": "MIT",
   "dependencies": {

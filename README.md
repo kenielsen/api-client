@@ -42,6 +42,12 @@ or
 pnpm add @kenielsen/api-client
 ```
 
+or
+
+```bash
+yarn add @kenielsen/api-client
+```
+
 ---
 
 ## Quick Example
