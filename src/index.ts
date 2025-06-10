@@ -1,6 +1,6 @@
-export { fetchApi } from "./fetchApi";
+export { fetchApi } from './fetchApi';
 
-export { buildApiClients } from "./buildApiClients";
+export { buildApiClients } from './buildApiClients';
 
 export type {
   ApiBaseConfigs,
@@ -14,4 +14,4 @@ export type {
   AdapterOptions,
   AdapterType,
   HttpMethod,
-} from "./types";
+} from './types';
