@@ -18,7 +18,7 @@ export function replacePathParams(path: string, params?: NormalizedApiCallParams
     const value = params[paramName];
     if (value === '')
       throw new Error(`Missing path parameter: ${paramName}`);
-    
+
     return encodeURIComponent(value);
   })
 }
@@ -27,6 +27,6 @@ export const buildQueryString = (params?: NormalizedApiCallParams): string => {
   if (!params)
     return '';
 
-  return Object.values(params).map((param) => param[0]+'='+param[1]).join('&');
+  return Object.entries(params).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
 }
 
