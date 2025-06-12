@@ -1,15 +1,20 @@
 // Export your types:
 export {
-  ApiBaseConfig,
-  ApiBaseConfigs,
+  ApiInstanceConfig as ApiBaseConfig,
+  ApiInstanceConfigs as ApiBaseConfigs,
   ApiRequestConfig,
   ApiRequestConfigs,
   ApiCall,
   ApiCallContext,
+  ApiRequest,
   ApiResponse,
+  AuthContextResolver,
   AuthProvider,
+  HttpHeaders,
+  HttpMethod,
   ParamContext,
-  TransformRequestFn
+  Resolver,
+  TransformRequestFn,
 } from './types';
 
 // Export your core ApiClient system:
@@ -21,8 +26,8 @@ export {
   createBearerAuthProvider,
   createBasicAuthProvider,
   createApiKeyAuthProvider,
-  buildAuthProvider as createCustomAuthProvider
-} from './utils/auth';  // or wherever you're holding them
+  buildAuthProvider as createCustomAuthProvider,
+} from './utils/auth'; // or wherever you're holding them
 
 // Export the request-level helpers:
-export * from './utils/requests';  // contains mapResponse()
+export * from './utils/requests'; // contains mapResponse()

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, CreateAxiosDefaults } from 'axios';
 import {
-  ApiBaseConfigs,
+  ApiInstanceConfigs,
   ApiRequest,
   ApiResponse,
   TransportClient,
@@ -26,7 +26,7 @@ const buildAxiosClient = (instance: AxiosInstance): TransportClient => ({
 });
 
 export const buildAxiosClients = (
-  baseConfigs: ApiBaseConfigs
+  baseConfigs: ApiInstanceConfigs
 ): TransportClients => {
   const instances: TransportClients = {};
 

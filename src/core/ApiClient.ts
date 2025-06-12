@@ -4,6 +4,7 @@ import {
   buildApiClients,
   buildUrl,
   fillAndNormalizeParams,
+  createAuthRequestTransform,
 } from '../utils';
 import {
   AdapterOptions,
@@ -14,14 +15,14 @@ import {
   ParamContext,
   TransportClients,
   AuthProvider,
-  ApiBaseConfigs,
+  ApiInstanceConfigs,
   ApiCallContext,
 } from '../types';
 
 export class ApiClient {
   public readonly clients: TransportClients;
 
-  private readonly baseConfigs: ApiBaseConfigs;
+  private readonly instanceConfigs: ApiInstanceConfigs;
   private globalParamContextProvider?: () => ParamContext;
   private authProvider?: AuthProvider;
 
@@ -29,15 +30,12 @@ export class ApiClient {
     return this.globalParamContextProvider?.() ?? {};
   }
 
-  /**
-   *
-   */
   constructor(
     adapterOptions: AdapterOptions,
     private readonly requestConfigs: ApiRequestConfigs
   ) {
     this.clients = buildApiClients(adapterOptions);
-    this.baseConfigs = adapterOptions.baseConfigs;
+    this.instanceConfigs = adapterOptions.baseConfigs;
   }
 
   useGlobalParamContext(provider: () => ParamContext) {
@@ -75,7 +73,7 @@ export class ApiClient {
 
     const authRequired =
       config.requireAuthentication ||
-      this.baseConfigs[instanceKey].requireAuthentication;
+      this.instanceConfigs[instanceKey].requireAuthentication;
 
     if (this.authProvider && authRequired) {
       const isAuth = await this.authProvider.isAuthenticated(
@@ -107,7 +105,13 @@ export class ApiClient {
 
     request.url = buildUrl(config.url, pathParams, queryParams);
 
-    request.transformRequest = config.transformRequest;
+    request.transformRequest = [
+      ...(config.transformRequest ?? []),
+      createAuthRequestTransform(
+        this.authProvider,
+        apiCallContext?.authProviderContext
+      ),
+    ];
 
     if (
       apiCall.body &&

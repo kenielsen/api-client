@@ -1,10 +1,11 @@
-import { HttpMethod } from "./generics";
+import { HttpMethod, Resolver } from './generics';
+import { ApiRequest } from './requests';
 
 // Request/response transformers
-export type TransformRequestFn = (body: unknown) => unknown;
+export type TransformRequestFn = (request: ApiRequest) => Resolver<ApiRequest>;
 
 // Base config for each API instance
-export interface ApiBaseConfig {
+export interface ApiInstanceConfig {
   baseURL: string;
   headers?: Record<string, string>;
   responseType?: string;
@@ -32,4 +33,4 @@ export interface ParamDefinition {
 
 // Config maps
 export type ApiRequestConfigs = Record<string, ApiRequestConfig>;
-export type ApiBaseConfigs = Record<string, ApiBaseConfig>;
+export type ApiInstanceConfigs = Record<string, ApiInstanceConfig>;

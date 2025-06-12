@@ -1,16 +1,16 @@
-import { ApiBaseConfigs } from "./config";
-import { ApiRequest, ApiResponse } from "./requests";
+import { ApiInstanceConfigs } from './config';
+import { ApiRequest, ApiResponse } from './requests';
 
 // Adapter configuration
-export type AdapterType = "axios" | "fetch";
+export type AdapterType = 'axios'; // | 'fetch';
 
 // Adapter options
 export interface AdapterOptions {
   adapter: AdapterType;
-  baseConfigs: ApiBaseConfigs;
+  baseConfigs: ApiInstanceConfigs;
   customBuilders?: Record<
     string,
-    (baseConfigs: ApiBaseConfigs) => TransportClients
+    (baseConfigs: ApiInstanceConfigs) => TransportClients
   >;
 }
 

@@ -2,7 +2,8 @@ export {
   createApiKeyAuthProvider,
   createBasicAuthProvider,
   createBearerAuthProvider,
-  buildAuthProvider as createCustomAuthProvider
+  buildAuthProvider as createCustomAuthProvider,
+  createAuthRequestTransform
 } from './auth';
 
 export * from './buildApiClients';

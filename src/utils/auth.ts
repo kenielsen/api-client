@@ -1,3 +1,4 @@
+import { ApiRequest, TransformRequestFn } from '../types';
 import {
   ApiKeyProviderOptions,
   AuthContextResolver,
@@ -6,6 +7,18 @@ import {
   BasicCredentialsProviderOptions,
 } from '../types/auth';
 import { HttpHeaders } from '../types/generics';
+
+export const createAuthRequestTransform = (authProvider?: AuthProvider, authContext?: AuthProviderContext): TransformRequestFn =>
+  async (request: ApiRequest) => {
+    if (!authProvider)
+      return request;
+
+    const authHeaders = await authProvider.getHeaders(authContext);
+    return {
+      ...request,
+      headers: { ...(request.headers ?? {}), ...authHeaders }
+    }
+  }
 
 export const createBearerAuthProvider = (
   tokenProvider: AuthContextResolver<string>,
