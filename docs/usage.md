@@ -2,22 +2,50 @@
 
 ```ts
 import { ApiClient } from '@kenielsen/api-client';
-import { baseConfigs, endpoints } from './api.def.ts';
+import { instanceConfigs, requestConfigs } from './api.def.ts';
+import { createBearerAuthProvider } from '@kenielsen/api-client/auth';
 
-const client = new ApiClient({ adapter: 'axios', baseConfigs, endpoints })
-  .useAuth(() => localStorage.getItem('token') ?? '')
-  .useParamContext(() => ({ orgId: 'abc123' }));
+// Build and configure the API client (fluent chaining)
+const client = new ApiClient(
+  { adapter: 'axios', baseConfigs: instanceConfigs },
+  requestConfigs
+)
+  .useGlobalParamContext(() => ({ orgId: 'abc123' }))
+  .useAuth(
+    createBearerAuthProvider(
+      () => localStorage.getItem('token') ?? ''
+    )
+  );
 
-const result = await client.fetch({
+// Perform an API call
+const result = await client.call({
   endpointKey: 'getUser',
-  pathParams: { userId: '123' },
+  pathParams: { userId: '123' }
 });
 ```
 
 ---
 
-## Notes
-- `.useAuth()` allows you to inject dynamic headers (e.g. bearer tokens)
-- `.useParamContext()` lets you auto-fill commonly reused parameters like `orgId`, `env`, or `userId`
-- All parameters are validated and normalized before request execution
-- You can extend `ApiClient` to add additional behavior if needed
+## Key Usage Notes
+- Both `.useAuth()` and `.useGlobalParamContext()` are **fluent** - they return `this` for convenient chaining.
+- `.useAuth()` accepts fully pluggable `AuthProvider` instances created via the provided factory methods.
+- `.useGlobalParamContext()` injects dynamic global param context merged into all requests.
+- All parameters are normalized, resolved and validated before request execution
+- `ApiCall` objects remain simple declarative request shapes.
+- The 'call()` method supports any HttpMethod declared in your configs.
+
+## Auth Provider Factory Options
+
+| Factory | Usage |
+| --- | --- |
+| `createBearerAuthProvider()` | Bearer token injection |
+| `createBasicAuthProvider()` | Basic Auth (username/password) |
+| `createApiKeyAuthProvider()` | API Key injection |
+| `createCustomAuthProvider()` | Fully custom header providers |
+
+## Future Extensions
+- `TransformRequestFn` allows request-time mutation (middleware ready)
+- Transport adapters are fully pluggable(`axios` supported in v1.0, `fetch` coming in v1.1)
+- Streaming and advanced middleware pipelines are part of planned v1.1 extensions (currently)
+
+**@kenielsen/api-client — v1.0 Usage Locked**

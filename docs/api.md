@@ -1,94 +1,153 @@
-# API Reference
+#### Adapter Options
 
-This page documents the core types, classes, and methods provided by `@kenielsen/api-client`.
-
----
-
-## `ApiClient` Class
-The main entrypoint for performing typed, declarative API calls.
-
-### Constructor
-```ts
-new ApiClient(options: AdapterOptions, endpoints: ApiRequestConfigs)
+```typescript
+interface AdapterOptions {
+	adapter: 'axios';  // Fetch deferred to v1.1
+	baseConfigs: ApiInstanceConfigs;
+	   customBuilders?: Record<string, TransportClient>;
+}
 ```
-- `options.adapter`: `'axios' | 'fetch'`
-- `options.baseConfigs`: per-instance configuration (base URL, headers)
-- `options.customBuilders`: optional, for adding custom transport clients
-- `endpoints`: your declarative endpoint definitions
+
+- `adapter`: Current transport engine (`axios` supported).
+- `baseConfigs`: Your per-instance connection configs.
+- `customBuilders`: Optional — for injecting additional transport clients.
+
+#### Endpoints
+
+- Declarative `ApiRequestConfigs` defining all endpoint behaviors.
 
 ### Methods
-```ts
-client.fetch<T>(call: ApiCall): Promise<ApiResponse<T>>
-```
-Executes a typed request using the defined config.
 
-```ts
-client.useAuth(getTokenFn: () => string): this
-```
-Adds a bearer token header for all requests.
+#### `.call<T>()`
 
-```ts
-client.useParamContext(getParamsFn: () => ParamContext): this
-```
-Injects additional parameters (e.g. `orgId`, `userId`) into path/query.
+```typescript
 
----
+
+`client.call<T>(call: ApiCall, context?: ApiCallContext): Promise<ApiResponse<T>>`
+```
+
+- Executes an API call using declarative configs.
+- Supports runtime parameter context injection.
+- Always returns an `ApiResponse<T>` for consistent result handling.
+
+#### `.useAuth()`
+
+```typescript
+client.useAuth(authProvider: AuthProvider): this
+```
+
+- Injects pluggable auth providers via factory functions:
+    - `createBearerAuthProvider()`
+    - `createBasicAuthProvider()`
+    - `createApiKeyAuthProvider()`
+    - `createCustomAuthProvider()`
+
+#### `.useGlobalParamContext()`
+
+```typescript
+client.useGlobalParamContext(provider: () => ParamContext): this
+```
+
+- Injects global dynamic parameter context for path/query params.
 
 ## Key Types
 
 ### `ApiCall`
-```ts
-interface ApiCall {
-  endpointKey: string;
-  pathParams?: Record<string, unknown>;
-  queryParams?: Record<string, unknown>;
-  body?: unknown;
-}
+
+typescript
+
+CopyEdit
+
+```typescript
+interface ApiCall {   endpointKey: string;   pathParams?: Record<string, unknown>;   queryParams?: Record<string, unknown>;   body?: unknown; }
 ```
-Used by developers when calling `client.fetch()`.
 
 ### `ApiRequestConfig`
-```ts
+
+```typescript
 interface ApiRequestConfig {
-  instanceKey: string;
-  url: string;
-  method: 'get' | 'post' | 'put' | 'patch' | 'delete';
-  headers?: Record<string, string>;
-  pathParams?: ParamDefinition[];
-  queryParams?: ParamDefinition[];
-  transformRequest?: TransformRequestFn[];
-  transformResponse?: TransformResponseFn;
+	instanceKey: string;
+	url: string;
+	method: HttpMethod;
+	pathParams?: ParamDefinition[];
+	queryParams?: ParamDefinition[];
+	transformRequest?: TransformRequestFn[];
 }
 ```
-Describes a single endpoint.
+
+### `ApiInstanceConfig`
+
+```typescript
+interface ApiInstanceConfig {
+	baseUrl: string;
+	requireAuthentication?: boolean;
+}
+```
 
 ### `ParamDefinition`
-```ts
+
+```typescript
 interface ParamDefinition {
-  name: string;
-  required: boolean;
-  defaultValue?: unknown;
+	name: string;
+	required: boolean;
+	defaultValue?: unknown;
 }
 ```
-Used to validate and fill parameters before request execution.
 
+### `ApiResponse<T>`
+
+typescript
+
+CopyEdit
+```typescript
+class ApiResponse<T> {
+	constructor(public readonly data?: T, public readonly error?: unknown) {}
+	
+	get ok(): boolean {
+		return this.error == null;
+	} 
+}
+```
 ---
 
 ## Utility Types
-- `ApiCallParams = Record<string, unknown>`
-- `NormalizedApiCallParams = Record<string, string>`
-- `ParamContext = Record<string, unknown>`
+
+| Type                     | Purpose                                           |
+| ------------------------ | ------------------------------------------------- |
+| `ParamContext`           | Dynamic parameter context object                  |
+| `AuthContextResolver<T>` | Resolver used for auth providers                  |
+| `Resolver<T>`            | General-purpose context resolver pattern          |
+| `TransformRequestFn`     | Request mutation pipeline function                |
+| `HttpMethod`             | `'get' \| 'post' \| 'put' \| 'patch' \| 'delete'` |
 
 ---
 
 ## Extending
-You can extend `ApiClient` or write your own adapters by implementing:
-```ts
+
+### Custom Transport Adapters
+
+Implement `TransportClient` to provide custom HTTP engines:
+
+```typescript
 interface TransportClient {
-  request<T>(request: ApiRequest): Promise<ApiResponse<T>>;
+	request<T>(request: ApiRequest): Promise<ApiResponse<T>>;
 }
 ```
 
-To inject custom behavior, override `fetch()` or extend it with middleware.
+### Custom Param Contexts
 
-For full examples, see [Adapters](./Adapters.md) and [Usage](./Usage.md).
+Dynamic parameter injection is fully pluggable via `ParamContext` provider functions.
+
+### Custom Transform Pipelines
+
+Use `TransformRequestFn[]` to inject request-time middleware.
+
+## Notes
+
+- The `fetch` adapter is deferred until v1.1
+- Response transformation (`transformResponse`) is intentionally deferred.    
+- Middleware pipeline support will expand further in future versions.
+
+---
+
+**@kenielsen/api-client v1.0 — Contract Stable**

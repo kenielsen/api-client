@@ -9,6 +9,10 @@ Welcome to the official documentation for `@kenielsen/api-client`, a transport-a
 - [Adapters](./Adapters.md) — Built-in and custom transport layers
 - [CLI](./CLI.md) — Command line tools for scaffolding and loading
 - [Philosophy](./Philosophy.md) — Design and developer experience principles
+- Architecture Docs
+  - [Architecture Guide](./architecture/SDK-Architecture-Guide.md)
+  - [Architecture Map](./architecture/SDK-Architecture-Map.md)
+  - [Design Reference](./architecture/SDK-Design-Reference.md)
 
 ## 🚀 Get Started
 ```bash

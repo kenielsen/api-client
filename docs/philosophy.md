@@ -1,48 +1,68 @@
-# Design Philosophy
+# Design Philosophy — @kenielsen/api-client (v1.0)
 
-`@kenielsen/api-client` is built with one goal in mind:
+`@kenielsen/api-client` is built with one core goal:
 
-> To make HTTP requests clean, extensible, and transport-agnostic — all without forcing your app to fit someone else's mold!
+> Make HTTP requests clean, composable, and transport-agnostic — without forcing your app to fit someone else's mold.
 
-We believe a good SDK should offer **ergonomic defaults**, but never **lock you in**.
-
-## Explicit Separation of Concerns
-
-- **Declarative**: Define endpoints in one place with `api.def.ts`, `api.def.json`, or `api.def.yaml`
-- **Runtime-resolved**: Normalize, validate, and transform params only when needed
-- **Transport-agnostic**: Adapters like `axios` or `fetch` implement the actual request logic
+We believe a good SDK offers **ergonomic defaults** without creating unnecessary lock-in.
 
 ---
 
-# Developer Experience (DX) Principles
+## Explicit Separation of Concerns
 
-We care about how it feels to use this SDK — not just that it works.
+- **Declarative-first**:  
+  Define endpoints using codegen-friendly `api.def.ts` (or `.json` / `.yaml` inputs).
+  
+- **Runtime-resolved**:  
+  Parameters are lazily resolved and validated just-in-time at request execution.
 
-## Opt-in, not forced
-You can use what you need:
-- `.useAuth()` to add token support only if you want it
-- `.useParamContext()` to auto-fill parameters like `orgId` or `userId`, or skip it entirely
-- No required decorators, no magic, no framework lock-in
+- **Transport-agnostic**:  
+  The SDK abstracts HTTP execution into fully pluggable adapters (`axios` supported in v1.0, `fetch` adapter deferred to v1.1).
 
-## Fluent and readable
-Setup is chainable and expressive:
-```ts
-const client = new ApiClient(config)
-  .useAuth(() => getToken())
-  .useParamContext(() => ({ orgId: 'abc123' }));
+- **Composable auth pipeline**:  
+  Auth strategies are injected via `AuthProvider` factories, not hardcoded configuration objects.
+
+---
+
+## Developer Experience (DX) Principles
+
+> This SDK is written for humans first, systems second.
+
+### Opt-in, not forced
+
+You use only what you need:
+
+- `.useAuth()` accepts any valid `AuthProvider` — bearer, basic, API key, or fully custom.
+- `.useGlobalParamContext()` allows dynamic param injection globally, or per call.
+- No required decorators, magic, or framework lock-in.
+
+### Fluent, chainable configuration
+
+The SDK encourages expressive, readable setup:
+
+```typescript
+const client = new ApiClient(configs, requestConfigs)
+  .useGlobalParamContext(() => ({ orgId: 'abc123' }))
+  .useAuth(createBearerAuthProvider(() => getToken()));
 ```
 
-## Helpful defaults, not assumptions
-- Missing parameters? You'll get clear errors, not cryptic stack traces
-- Param names not declared? You'll know exactly which ones are extra
-- Path formats like `<param>`, `{param}`, and `:param` are all supported
+### Helpful defaults, not hidden assumptions
+- Missing required parameters? Clear, explicit validation errors.
+- Param names not declared? Helpful extra-parameter warnings
+- Path tokens fully support flexible formats: `:param`, `{param}`, `<param>`
 
-## Supports both human and machine editing
-- Use `api.def.yaml` for hand-edited definitions
-- Use `api.def.json` for tooling and automation
-- Load either one seamlessly with `yaml.parse()` or `JSON.parse()`
+### Supports both human and machine editing
+- use `api.def.yaml` or `api.def.json` for configuration.
+- Codegen utilities can consume either for CI pipelines or automation.
+- The SDK separates runtime resolution from declarative definitions cleanly.
 
-## Built for scale, not just demos
-- Works with Fetch, Axios, or custom transports
-- Typed all the way through
-- Easy to extend for auth, logging, retries, or multi-tenant needs
+### Build for scale, not demos
+- Transport-agnostic core
+- Type-save end-to-end
+- Fully pluggable auth layer
+- Context-driven param system
+- Fully isolated transform pipeline (`TransformRequestFn[]`)
+- Middleware pipeline scaffolding intentionally deferred for v1.1+
+- Safe to extend for multi-tentant, retry, telemetry or tracing needs
+
+**@kenielsen/api-client v1.0**

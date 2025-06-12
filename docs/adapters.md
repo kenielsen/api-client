@@ -14,7 +14,7 @@ Out of the box, the SDK supports:
 
 ### Axios Adapter
 Supports all standard features of Axios, including:
-- `transformRequest` and `transformResponse`
+- `transformRequest`
 - Interceptors (set up outside the SDK)
 - Full request config support
 
@@ -42,9 +42,9 @@ Then use the `customBuilders` field when creating your client:
 ```ts
 const client = new ApiClient({
   adapter: 'customHttp',
-  baseConfigs,
+  instanceConfigs,
   customBuilders: {
-    customHttp: (baseConfigs) => buildCustomTransportClients(baseConfigs),
+    customHttp: (instanceConfigs) => buildCustomTransportClients(instanceConfigs),
   },
   endpoints,
 });

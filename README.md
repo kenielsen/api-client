@@ -3,37 +3,49 @@
 [![npm version](https://badge.fury.io/js/%40kenielsen%2Fapi-client.svg)](https://www.npmjs.com/package/@kenielsen/api-client)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-A transport-agnostic, framework-agnostic SDK for declarative HTTP APIs.
+> A fully transport-agnostic, declarative HTTP client SDK for strongly typed API contracts.
 
-Designed for teams building modern platforms with strong typing, durable interfaces, and zero runtime lock-in.
-
----
+Designed for teams building scalable platforms with durable interfaces, context-driven resolution, and zero runtime lock-in.
 
 ## Documentation
-- [Usage](docs/Usage.md)
-- [API Reference](docs/Api.md)
-- [Adapters](docs/Adapters.md)
-- [CLI](docs/CLI.md)
-- [Philosophy](docs/Philosophy.md)
+
+- [Usage](docs/usage.md)
+- [API Reference](docs/api.md)
+- [Adapters](docs/adapters.md)
+- [CLI](docs/cli.md)
+- [Philosophy](docs/philosophy.md)
+- [Design Reference](docs/SDK-Design-Reference.md)
+- [Architecture Guide](docs/SDK-Architecture-Guide.md)
+- [Architecture Map](docs/SDK-Architecture-Map.md)
+
+## Features
+
+- ✅ **Transport-agnostic**: pluggable adapters (`axios` supported, `fetch` queued for v1.1)
+- ✅ **Declarative API definitions**: Type-safe `api.def.ts`, `.json`, or `.yaml`
+- ✅ **Smart param validation**: Required/default/contextual param resolution
+- ✅ **Composable auth system**: Bearer, Basic, API Key, or fully custom
+- ✅ **TransformRequestFn**: Middleware-style request mutation
+- ✅ **Codegen-friendly**: Clean separation of config & runtime orchestration
+- ✅ **Fully testable**: Thin transport core for durable unit tests
 
 ---
 
-## Features
-- **Transport-agnostic**: use with `fetch`, `axios`, or your own adapter
-- **Declarative API definitions**: Centralize and type your HTTP contract
-- **Smart param validation**: Get helpful errors for missing or extra parameters
-- **Extendable client**: Inject auth, param context, middleware, and more
-- **Supports JSON and YAML**: Write `api.def.ts`, `.json`, or `.yaml` – all supported
+## v1.1 Roadmap
 
-### *Future Features*
-- [ ] CLI tool to generate `api.def.*` files
-- [ ] Reader for `api.def.*` so you can load config files directly
+- [ ] `fetchAdapter` transport module
+- [ ] `useMiddleware()` API for registered middleware chains
+- [ ] CLI tool for `api.def.*` codegen scaffolding
+- [ ] `fromFileDef()` static convenience initializer
+- [ ] Streaming pipeline support (`stream()`)
+- [ ] Multipart/form-data serialization
 
 ---
 
 ## Installation
+
 ```bash
 npm install @kenielsen/api-client
+
 ```
 
 or
@@ -48,20 +60,19 @@ or
 yarn add @kenielsen/api-client
 ```
 
----
-
 ## Quick Example
 ```ts
 import { ApiClient } from '@kenielsen/api-client';
-import { baseConfigs, endpoints } from './api.def.ts';
+import { instanceConfigs, requestConfigs } from './api.def.ts';
+import { createBearerAuthProvider } from '@kenielsen/api-client/auth';
 
-const client = new ApiClient({ adapter: 'axios', baseConfigs, endpoints })
-  .useAuth(() => localStorage.getItem('token') ?? '')
-  .useParamContext(() => ({ orgId: 'abc123' }));
+const client = new ApiClient({ adapter: 'axios', baseConfigs: instanceConfigs }, requestConfigs)
+  .useGlobalParamContext(() => ({ orgId: 'abc123' }))
+  .useAuth(createBearerAuthProvider(() => localStorage.getItem('token') ?? ''));
 
-const result = await client.fetch({
+const result = await client.call({
   endpointKey: 'getUser',
-  pathParams: { userId: '123' },
+  pathParams: { userId: '123' }
 });
 ```
 
