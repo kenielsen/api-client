@@ -1,17 +1,28 @@
-export { fetchApi } from './fetchApi';
-
-export { buildApiClients } from './buildApiClients';
-
-export type {
+// Export your types:
+export {
+  ApiBaseConfig,
   ApiBaseConfigs,
+  ApiRequestConfig,
   ApiRequestConfigs,
-  TransportClient, // for adding custom logic around a given instance
-  TransportClients,
   ApiCall,
-  TransformRequestFn,
-  TransformResponseFn,
-  ParamDefinition,
-  AdapterOptions,
-  AdapterType,
-  HttpMethod,
+  ApiCallContext,
+  ApiResponse,
+  AuthProvider,
+  ParamContext,
+  TransformRequestFn
 } from './types';
+
+// Export your core ApiClient system:
+export { ApiClient } from './core/ApiClient';
+export { buildApiClients } from './utils/buildApiClients';
+
+// Export auth provider factories:
+export {
+  createBearerAuthProvider,
+  createBasicAuthProvider,
+  createApiKeyAuthProvider,
+  buildAuthProvider as createCustomAuthProvider
+} from './utils/auth';  // or wherever you're holding them
+
+// Export the request-level helpers:
+export * from './utils/requests';  // contains mapResponse()

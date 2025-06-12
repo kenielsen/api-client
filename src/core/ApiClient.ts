@@ -1,17 +1,33 @@
-import { buildApiClients } from './buildApiClients';
-import { normalizeParameters, replacePathParams } from '../utils/pathUtils';
+import {
+  assertPathParams,
+  assertQueryParams,
+  buildApiClients,
+  buildUrl,
+  fillAndNormalizeParams,
+} from '../utils';
 import {
   AdapterOptions,
   ApiCall,
   ApiRequest,
   ApiRequestConfigs,
   ApiResponse,
+  ParamContext,
   TransportClients,
+  AuthProvider,
+  ApiBaseConfigs,
+  ApiCallContext,
 } from '../types';
 
 export class ApiClient {
   public readonly clients: TransportClients;
-  private paramContextProvider?: () => Record<string, unknown>;
+
+  private readonly baseConfigs: ApiBaseConfigs;
+  private globalParamContextProvider?: () => ParamContext;
+  private authProvider?: AuthProvider;
+
+  private get globalParamContext() {
+    return this.globalParamContextProvider?.() ?? {};
+  }
 
   /**
    *
@@ -21,19 +37,31 @@ export class ApiClient {
     private readonly requestConfigs: ApiRequestConfigs
   ) {
     this.clients = buildApiClients(adapterOptions);
+    this.baseConfigs = adapterOptions.baseConfigs;
   }
 
-  useParamContext(provider: () => Record<string, unknown>) {
-    this.paramContextProvider = provider;
+  useGlobalParamContext(provider: () => ParamContext) {
+    this.globalParamContextProvider = provider;
     return this;
   }
 
-  async fetch<T>(apiCall: ApiCall): Promise<ApiResponse<T>> {
-    // move fetchApi implementation here
+  useAuth(authProvider: AuthProvider) {
+    this.authProvider = authProvider;
+    return this;
+  }
+
+  async call<T>(
+    apiCall: ApiCall,
+    apiCallContext?: ApiCallContext
+  ): Promise<ApiResponse<T>> {
     if (!this.clients || !this.requestConfigs)
       throw new Error(`Neither apiInstances nor endpoints can be undefined.`);
 
     const config = this.requestConfigs[apiCall.endpointKey];
+
+    if (!config)
+      throw new Error(`No endpoint configured for ${apiCall.endpointKey}`);
+
     const request: ApiRequest = {
       url: config.url,
       method: config.method,
@@ -41,20 +69,45 @@ export class ApiClient {
 
     const instanceKey = config.instanceKey;
 
-    if (!config)
-      throw new Error(`No endpoint configured for ${apiCall.endpointKey}`);
-
     const api = this.clients[instanceKey];
 
     if (!api) throw new Error(`No API instance found for ${instanceKey}`);
 
-    const providedParams = apiCall.pathParams
-      ? normalizeParameters(apiCall.pathParams)
-      : {};
-    let url = config.url;
+    const authRequired =
+      config.requireAuthentication ||
+      this.baseConfigs[instanceKey].requireAuthentication;
 
-    // parse path params
-    // parse query params
+    if (this.authProvider && authRequired) {
+      const isAuth = await this.authProvider.isAuthenticated(
+        apiCallContext?.authProviderContext
+      );
+      if (!isAuth)
+        throw new Error(
+          `Authentication required but not satisfied for ${instanceKey}:${apiCall.endpointKey}`
+        );
+    }
+
+    const paramContext = {
+      ...this.globalParamContext,
+      ...(apiCallContext?.paramContext ?? {}),
+    };
+
+    const pathParams = fillAndNormalizeParams(
+      apiCall.pathParams,
+      config.pathParams,
+      paramContext
+    );
+    assertPathParams(pathParams, config.pathParams);
+    const queryParams = fillAndNormalizeParams(
+      apiCall.queryParams,
+      config.queryParams,
+      paramContext
+    );
+    assertQueryParams(queryParams, config.queryParams);
+
+    request.url = buildUrl(config.url, pathParams, queryParams);
+
+    request.transformRequest = config.transformRequest;
 
     if (
       apiCall.body &&
@@ -66,9 +119,9 @@ export class ApiClient {
     try {
       const response = await api.request<T>(request);
 
-      return { data: response.data };
+      return response;
     } catch (error) {
-      return { error };
+      return new ApiResponse<T>(undefined, error);
     }
   }
 }

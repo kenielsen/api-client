@@ -1,6 +1,7 @@
-import { buildAxiosClients } from "./adapters/axiosAdapter";
-import { buildFetchClients } from "./adapters/fetchAdapter";
-import { AdapterOptions, ApiBaseConfigs, TransportClients } from "./types";
+import { ApiBaseConfigs } from '../types/config';
+import { AdapterOptions, TransportClients } from '../types/transport';
+import { buildAxiosClients } from './adapters/axiosAdapter';
+import { buildFetchClients } from './adapters/fetchAdapter';
 
 export const buildApiClients = (options: AdapterOptions): TransportClients => {
   const { adapter, baseConfigs, customBuilders } = options;
